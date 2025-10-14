@@ -1,36 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ARC Call Capacity</title>
   <style>
-    :root{
-      --bg:#0b0f14; --card:#121820; --muted:#94a3b8; --text:#e5edf5; --brand:#38bdf8;
-      --ok:#22c55e; --warn:#f59e0b; --full:#ef4444; --grid:#1e293b;
+    /* ===== THEME TOKENS ===== */
+    :root {
+      /* light (default) */
+      --bg:#ffffff;
+      --card:#f9fafb;
+      --text:#1e293b;
+      --muted:#64748b;
+      --brand:#0284c7;
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --full:#dc2626;
+      --grid:#e2e8f0;
+      --input-bg:#ffffff;
+      --hover:rgba(2,132,199,.06);
     }
-    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial}
+    [data-theme="dark"] {
+      --bg:#0b0f14;
+      --card:#121820;
+      --muted:#94a3b8;
+      --text:#e5edf5;
+      --brand:#38bdf8;
+      --ok:#22c55e;
+      --warn:#f59e0b;
+      --full:#ef4444;
+      --grid:#1e293b;
+      --input-bg:#0f172a;
+      --hover:rgba(56,189,248,.06);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font:16px/1.5 "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      transition:background 0.3s,color 0.3s;
+    }
+
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-    h1{font-size:20px;margin:0;letter-spacing:.2px}
-    .card{background:var(--card);border:1px solid var(--grid);border-radius:16px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
+    h1{font-size:22px;margin:0;font-weight:600;color:var(--brand)}
+    .muted{color:var(--muted)}
+
+    .theme-toggle{
+      cursor:pointer;
+      border:1px solid var(--grid);
+      border-radius:12px;
+      padding:6px 12px;
+      background:var(--card);
+      color:var(--text);
+      transition:background .2s,border .2s,color .2s;
+    }
+    .theme-toggle:hover{
+      background:var(--brand);
+      color:#fff;
+      border-color:var(--brand);
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--grid);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:0 8px 24px rgba(0,0,0,.05);
+      transition:background .3s,border .3s;
+    }
+
     .controls{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 16px}
-    select,input{background:#0f172a;color:var(--text);border:1px solid var(--grid);padding:8px 10px;border-radius:10px;outline:none}
+    select,input{background:var(--input-bg);color:var(--text);border:1px solid var(--grid);padding:8px 10px;border-radius:10px;outline:none}
+
     table{width:100%;border-collapse:separate;border-spacing:0}
     th,td{padding:12px 10px;border-bottom:1px solid var(--grid);vertical-align:middle}
     th{font-weight:600;color:var(--muted);text-align:left}
-    tr:hover td{background:rgba(56,189,248,.06)}
+    tr:hover td{background:var(--hover)}
+
     .kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}
-    .kpi{background:#0f172a;border:1px solid var(--grid);border-radius:14px;padding:12px}
+    .kpi{background:var(--input-bg);border:1px solid var(--grid);border-radius:14px;padding:12px}
     .kpi .label{color:var(--muted);font-size:12px}
     .kpi .value{font-size:22px;font-weight:700}
-    .bar{position:relative;height:14px;background:#0b1220;border-radius:999px;overflow:hidden;border:1px solid var(--grid)}
+
+    .bar{position:relative;height:14px;background:var(--grid);border-radius:999px;overflow:hidden}
     .bar > span{position:absolute;left:0;top:0;height:100%;display:block}
+
     .tag{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--grid)}
-    .tag.ok{background:rgba(34,197,94,.12);color:#60d394}
-    .tag.full{background:rgba(239,68,68,.12);color:#fca5a5}
-    .tag.warn{background:rgba(245,158,11,.12);color:#facc15}
-    .muted{color:var(--muted)}
+    .tag.ok{background:rgba(34,197,94,.12);color:var(--ok)}
+    .tag.full{background:rgba(239,68,68,.12);color:var(--full)}
+    .tag.warn{background:rgba(245,158,11,.12);color:var(--warn)}
+
     .foot{margin-top:10px;color:var(--muted);font-size:12px}
     @media (max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}}
   </style>
@@ -39,7 +101,10 @@
   <div class="wrap">
     <header>
       <h1>ARC Call Capacity</h1>
-      <div class="muted" id="lastUpdated">—</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="theme-toggle" id="themeToggle">🌞 Light</button>
+        <div class="muted" id="lastUpdated">—</div>
+      </div>
     </header>
 
     <div class="card">
@@ -50,17 +115,18 @@
         <label>Status:
           <select id="statusFilter">
             <option value="">All</option>
-            <option value="Ok">Ok</option>
-            <option value="Full">Full</option>
+            <option value="Healthy">Healthy</option>
+            <option value="Busy">Busy</option>
+            <option value="Max Capacity">Max Capacity</option>
           </select>
         </label>
-        <input id="search" placeholder="Search week (YYYY-MM-DD)" />
+        <input id="search" placeholder="Search week (e.g., Nov 2 – 8)" />
       </div>
 
       <div class="kpis">
         <div class="kpi"><div class="label">Weeks</div><div class="value" id="kWeeks">-</div></div>
         <div class="kpi"><div class="label">Total Capacity</div><div class="value" id="kCapacity">-</div></div>
-        <div class="kpi"><div class="label">Total Demand</div><div class="value" id="kDemand">-</div></div>
+        <div class="kpi"><div class="label">Total Workload</div><div class="value" id="kDemand">-</div></div>
         <div class="kpi"><div class="label">Avg Utilization</div><div class="value" id="kUtil">-</div></div>
       </div>
 
@@ -68,12 +134,10 @@
         <table id="tbl">
           <thead>
             <tr>
-              <th>Start</th>
-              <th>End</th>
-              <th class="muted">Agents</th>
-              <th class="muted">CPH</th>
+              <th>Week</th>
               <th>Capacity</th>
-              <th>Demand</th>
+              <th>Workload</th>
+              <th>Remaining</th>
               <th style="width:240px">Utilization</th>
               <th>Status</th>
             </tr>
@@ -85,173 +149,238 @@
       <div class="foot">Tip: bars turn red when utilization &gt; 100%.</div>
     </div>
   </div>
-              
-<script>
-  // ======== CONFIGURE THESE VALUES ========
-  const SHEET_ID = '1vkxESiOY3-dDEdaCnvYLbYGHAynrRQWav8FgGXtJJLs';
-  const SHEET_NAME = 'CapacityData'; // exact tab name
-  const SHEET_GID = '0'; // tab gid from the URL (#gid=0)
-  // ============================================
 
-  // GViz JSONP (bypasses CORS) + Published CSV fallback
-  const GVIZ_JSONP = (cb)=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=responseHandler:${cb}`;
-  const CSV  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQs3XlDGAq7KpR7ltl7a4Ii_4ef_GMsfzDAVdEMuJqvdNbwAuJibG7r73whtAg2_1ZKcmtt5UUFVbzX/pub?gid=0&single=true&output=csv';
+  <script>
+    /* ===== THEME TOGGLE ===== */
+    const themeToggle = document.getElementById('themeToggle');
+    const htmlEl = document.documentElement;
 
-  const $ = (sel)=>document.querySelector(sel);
+    function setTheme(theme){
+      htmlEl.setAttribute('data-theme', theme);
+      localStorage.setItem('arcTheme', theme);
+      themeToggle.textContent = theme === 'dark' ? 'Dark' : 'Light';
+    }
 
-  function fmtNumber(n){ return Number(n).toLocaleString(); }
-  function fmtPct(x){ return (Number(x)*100).toFixed(0)+'%'; }
-  function toISO(d){ const dt=new Date(d); if(isNaN(dt)) return d; const m=String(dt.getMonth()+1).padStart(2,'0'); const day=String(dt.getDate()).padStart(2,'0'); return `${dt.getFullYear()}-${m}-${day}`; }
-
-  // Convert GViz response object to rows
-  function fromGvizObj(resp){
-    const cols = resp.table.cols.map(c=>c.label || c.id);
-    return resp.table.rows.map(r=>{
-      const o={};
-      r.c.forEach((cell,i)=>{
-        const key = cols[i] || `col${i}`;
-        let v = cell ? (cell.f ?? cell.v) : null;
-        // Normalize JS Date objects
-        if (v && typeof v === 'object' && v instanceof Date) v = toISO(v);
-        o[key]=v;
-      });
-      return o;
+    themeToggle.addEventListener('click',()=>{
+      const current = htmlEl.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
     });
-  }
 
-  // CSV parser that handles quotes and commas
-  function parseCSV(csv){
-    const out=[]; let row=[]; let cur=''; let inQ=false;
-    const push=()=>{ row.push(cur); cur=''; };
-    for(let i=0;i<csv.length;i++){
-      const ch = csv[i];
-      if(inQ){
-        if(ch==='"'){ if(csv[i+1]==='"'){ cur+='"'; i++; } else { inQ=false; } }
-        else { cur+=ch; }
-      }else{
-        if(ch==='"'){ inQ=true; }
-        else if(ch===','){ push(); }
-        else if(ch==='\n'){ push(); out.push(row); row=[]; }
-        else if(ch==='\r'){ /* ignore */ }
-        else { cur+=ch; }
+    // Default light; load saved or system preference
+    const saved = localStorage.getItem('arcTheme');
+    if(saved){ setTheme(saved); }
+    else if(window.matchMedia('(prefers-color-scheme: dark)').matches){ setTheme('dark'); }
+    else { setTheme('light'); }
+
+    /* ===== DASHBOARD ===== */
+    // ======== CONFIGURE THESE VALUES ========
+    const SHEET_ID   = '1vkxESiOY3-dDEdaCnvYLbYGHAynrRQWav8FgGXtJJLs';
+    const SHEET_NAME = 'CapacityData';   // exact tab name
+    const CSV        = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQs3XlDGAq7KpR7ltl7a4Ii_4ef_GMsfzDAVdEMuJqvdNbwAuJibG7r73whtAg2_1ZKcmtt5UUFVbzX/pub?gid=0&single=true&output=csv';
+    // ========================================
+
+    // JSONP endpoint (bypasses CORS if opened as a local file)
+    const GVIZ_JSONP = (cb)=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=responseHandler:${cb}`;
+
+    const $ = (sel)=>document.querySelector(sel);
+
+    // ---------- Helpers ----------
+    function fmtNumber(n){ return Number(n).toLocaleString(); }
+    function fmtPct(x){ return (Number(x)*100).toFixed(0)+'%'; }
+
+    // Convert Google Sheets serial date -> JS Date, else try native
+    function gsSerialToDate(v){
+      if (typeof v === 'number' && v > 30000) { // typical serials like 45559
+        return new Date(Math.round((v - 25569) * 86400 * 1000));
       }
+      const d = new Date(v);
+      return isNaN(d) ? null : d;
     }
-    if(cur.length || row.length){ push(); out.push(row); }
-    const headers = out.shift();
-    return out.filter(r=>r.length && r.some(x=>x!=='')).map(r=>{ const o={}; headers.forEach((h,i)=>o[h]=r[i]); return o; });
-  }
+    function toISO(d){
+      const dt = gsSerialToDate(d);
+      if(!dt) return d;
+      const m = String(dt.getMonth()+1).padStart(2,'0');
+      const day = String(dt.getDate()).padStart(2,'0');
+      return `${dt.getFullYear()}-${m}-${day}`;
+    }
 
-  function render(data){
-    const map = (r)=>({
-      Start: toISO(r.Start ?? r['Week Start'] ?? r['Event Period'] ?? r['A'] ?? ''),
-      End: toISO(r.End ?? r['Week End'] ?? ''),
-      Agents: Number(r['# of Agents'] ?? r.Agents ?? 0),
-      CPH: Number(r.CPH ?? 0),
-      Capacity: Number(String(r.Capacity||'').replace(/,/g,'')),
-      Demand: Number(String(r.Demand||'').replace(/,/g,'')),
-      Utilization: (()=>{ let u=r.Utilization; if(typeof u==='string'){ if(u.includes('%')) u=Number(u.replace('%',''))/100; else u=Number(u); } return Number(u); })(),
-      Status: r.Status || ''
-    });
+    // CSV parser (handles quotes + commas)
+    function parseCSV(csv){
+      const out=[]; let row=[]; let cur=''; let inQ=false;
+      const push=()=>{ row.push(cur); cur=''; };
+      for(let i=0;i<csv.length;i++){
+        const ch = csv[i];
+        if(inQ){
+          if(ch === '"'){ if(csv[i+1] === '"'){ cur+='"'; i++; } else { inQ=false; } }
+          else { cur += ch; }
+        }else{
+          if(ch === '"'){ inQ=true; }
+          else if(ch === ','){ push(); }
+          else if(ch === '\n'){ push(); out.push(row); row=[]; }
+          else if(ch === '\r'){ /* ignore */ }
+          else { cur += ch; }
+        }
+      }
+      if(cur.length || row.length){ push(); out.push(row); }
+      const headers = out.shift();
+      return out.filter(r=>r.length && r.some(x=>x!==''))
+        .map(r=>{ const o={}; headers.forEach((h,i)=>o[h]=r[i]); return o; });
+    }
 
-    let rows = data.map(map).filter(r=>r.Start).sort((a,b)=> new Date(a.Start)-new Date(b.Start));
-
-    const weekSel = $('#weekFilter');
-    weekSel.innerHTML = '<option value="">All weeks</option>' + rows.map(r=>r.Start).filter((d,i,a)=>a.indexOf(d)===i).map(d=>`<option>${d}</option>`).join('');
-
-    function tag(s){ const cls = s.toLowerCase().includes('full')? 'full' : (s.toLowerCase().includes('ok')? 'ok' : 'warn'); return `<span class="tag ${cls}">${s||'-'}</span>`; }
-
-    function paint(list){
-      document.querySelector('#kWeeks').textContent = list.length;
-      document.querySelector('#kCapacity').textContent = fmtNumber(list.reduce((s,r)=>s+r.Capacity,0));
-      document.querySelector('#kDemand').textContent = fmtNumber(list.reduce((s,r)=>s+r.Demand,0));
-      const avgU = list.length? list.reduce((s,r)=>s+(isFinite(r.Utilization)?r.Utilization:0),0)/list.length : 0;
-      document.querySelector('#kUtil').textContent = fmtPct(avgU);
-
-      const tbody = document.querySelector('#tbl tbody');
-      tbody.innerHTML = '';
-      list.forEach(r=>{
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${r.Start}</td>
-          <td>${r.End}</td>
-          <td class="muted">${r.Agents}</td>
-          <td class="muted">${r.CPH}</td>
-          <td>${fmtNumber(r.Capacity)}</td>
-          <td>${fmtNumber(r.Demand)}</td>
-          <td>
-            <div class="bar"><span style="width:${Math.min(100,(r.Utilization*100)||0)}%; background:${r.Utilization>1?'var(--full)':(r.Utilization>=0.9?'var(--warn)':'var(--ok)')}"></span></div>
-            <div class="muted" style="margin-top:4px">${fmtPct(r.Utilization)}</div>
-          </td>
-          <td>${tag(r.Status || (r.Utilization>1? 'Full' : (r.Utilization>=0.9? 'Tight':'Ok')))}</td>`;
-        tbody.appendChild(tr);
+    // GViz → rows
+    function fromGvizObj(resp){
+      const cols = resp.table.cols.map(c=>c.label || c.id);
+      return resp.table.rows.map(r=>{
+        const o={};
+        r.c.forEach((cell,i)=>{
+          const key = cols[i] || `col${i}`;
+          let v = cell ? (cell.f ?? cell.v) : null;
+          o[key]=v;
+        });
+        return o;
       });
     }
 
-    function applyFilters(){
-      const w = document.querySelector('#weekFilter').value;
-      const s = document.querySelector('#statusFilter').value;
-      const q = document.querySelector('#search').value.trim().toLowerCase();
-      let list = rows.slice();
-      if(w) list = list.filter(r=>r.Start===w);
-      if(s) list = list.filter(r=> (r.Status||'').toLowerCase() === s.toLowerCase());
-      if(q) list = list.filter(r=> (r.Start+' '+r.End).toLowerCase().includes(q));
-      paint(list);
+    // ---------- Render ----------
+    function render(data){
+      // Map sheet → normalized
+      const map = (r)=>({
+        Week: r.Week ?? r['Week Label'] ?? '',
+        Start: r.Start ?? r['Week Start'] ?? r['Event Period'] ?? '', // optional/hidden
+        End:   r.End   ?? r['Week End']   ?? '',
+        Capacity: Number(String(r.Capacity||'').replace(/,/g,'')),
+        Workload: Number(String((r.Workload ?? r.Demand) || '').replace(/,/g,'')), // Demand→Workload
+        Utilization: (()=>{ let u=(r.Utilization ?? r['Usage'] ?? r['Load']);
+          if (typeof u === 'string'){
+            if (u.includes('%')) u = Number(u.replace('%',''))/100;
+            else u = Number(u);
+          }
+          return Number(u);
+        })(),
+        Status: r.Status || '' // optional, we derive if absent
+      });
+
+      // Keep spreadsheet order
+      const rows = data.map(map).filter(r => r.Week || r.Start);
+
+      // Week filter options in the same order as rows
+      const seen = new Set();
+      const uniqWeeks = [];
+      for (const r of rows) {
+        const label = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
+        if (label && !seen.has(label)) { seen.add(label); uniqWeeks.push(label); }
+      }
+      $('#weekFilter').innerHTML = '<option value="">All weeks</option>' + uniqWeeks.map(w=>`<option>${w}</option>`).join('');
+
+      // Status helpers
+      function deriveStatus(u){
+        if (u > 1) return 'Max Capacity';
+        if (u >= 0.9) return 'Busy';
+        return 'Healthy';
+      }
+      function statusClass(label){
+        const l = (label||'').toLowerCase();
+        if (l.includes('max')) return 'full';
+        if (l.includes('busy')) return 'warn';
+        return 'ok'; // Healthy
+      }
+      function tag(label){
+        return `<span class="tag ${statusClass(label)}">${label}</span>`;
+      }
+
+      function paint(list){
+        // KPIs
+        document.querySelector('#kWeeks').textContent    = list.length;
+        document.querySelector('#kCapacity').textContent = fmtNumber(list.reduce((s,r)=>s+r.Capacity,0));
+        document.querySelector('#kDemand').textContent   = fmtNumber(list.reduce((s,r)=>s+r.Workload,0)); // label: Total Workload
+        const avgU = list.length ? list.reduce((s,r)=>s+(isFinite(r.Utilization)?r.Utilization:0),0)/list.length : 0;
+        document.querySelector('#kUtil').textContent     = fmtPct(avgU);
+
+        // Table
+        const tbody = document.querySelector('#tbl tbody');
+        tbody.innerHTML = '';
+        list.forEach(r=>{
+          const remaining = r.Capacity - r.Workload;
+          const weekLabel = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
+          const statusLabel = r.Status || deriveStatus(r.Utilization);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <span style="height:10px;width:10px;border-radius:50%;display:inline-block;margin-right:8px;background:${r.Utilization>1?'var(--full)':(r.Utilization>=0.9?'var(--warn)':'var(--ok)')}"></span>
+              ${weekLabel}
+            </td>
+            <td>${fmtNumber(r.Capacity)}</td>
+            <td>${fmtNumber(r.Workload)}</td>
+            <td>${fmtNumber(remaining)}</td>
+            <td>
+              <div class="bar">
+                <span style="width:${Math.min(100,(r.Utilization*100)||0)}%;
+                             background:${r.Utilization>1?'var(--full)':(r.Utilization>=0.9?'var(--warn)':'var(--ok)')}"></span>
+              </div>
+              <div class="muted" style="margin-top:4px">${fmtPct(r.Utilization)}</div>
+            </td>
+            <td>${tag(statusLabel)}</td>`;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function applyFilters(){
+        const w = document.querySelector('#weekFilter').value;
+        const s = document.querySelector('#statusFilter').value;
+        const q = document.querySelector('#search').value.trim().toLowerCase();
+        let list = rows.slice();
+        if (w) list = list.filter(r=> {
+          const label = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
+          return label === w;
+        });
+        if (s) list = list.filter(r=> {
+          const label = r.Status || (r.Utilization>1?'Max Capacity':(r.Utilization>=0.9?'Busy':'Healthy'));
+          return label.toLowerCase() === s.toLowerCase();
+        });
+        if (q) list = list.filter(r=> (r.Week || '').toLowerCase().includes(q));
+        paint(list);
+      }
+
+      document.querySelector('#weekFilter').onchange = applyFilters;
+      document.querySelector('#statusFilter').onchange = applyFilters;
+      document.querySelector('#search').oninput = applyFilters;
+
+      paint(rows);
     }
 
-    document.querySelector('#weekFilter').onchange = applyFilters;
-    document.querySelector('#statusFilter').onchange = applyFilters;
-    document.querySelector('#search').oninput = applyFilters;
-
-    paint(rows);
-  }
-
-  // Load via JSONP to avoid CORS entirely when running from file://
-  function loadViaJSONP(){
-    return new Promise((resolve,reject)=>{
-      const cb = 'gviz_cb_' + Math.random().toString(36).slice(2);
-      window[cb] = (resp)=>{ try{ const data = fromGvizObj(resp); resolve(data); } catch(e){ reject(e); } finally { delete window[cb]; s.remove(); } };
-      const s = document.createElement('script');
-      s.src = GVIZ_JSONP(cb);
-      s.onerror = ()=>{ delete window[cb]; reject(new Error('JSONP load error')); };
-      document.body.appendChild(s);
-    });
-  }
-
-  function fromGvizObj(resp){
-    const cols = resp.table.cols.map(c=>c.label || c.id);
-    return resp.table.rows.map(r=>{
-      const o={};
-      r.c.forEach((cell,i)=>{
-        const key = cols[i] || `col${i}`;
-        let v = cell ? (cell.f ?? cell.v) : null;
-        o[key]=v;
+    // ---------- Loader (JSONP first, CSV fallback) ----------
+    function loadViaJSONP(){
+      return new Promise((resolve,reject)=>{
+        const cb = 'gviz_cb_' + Math.random().toString(36).slice(2);
+        const s = document.createElement('script');
+        window[cb] = (resp)=>{ try{ resolve(fromGvizObj(resp)); } catch(e){ reject(e); } finally { delete window[cb]; s.remove(); } };
+        s.src = GVIZ_JSONP(cb);
+        s.onerror = ()=>{ delete window[cb]; reject(new Error('JSONP load error')); };
+        document.body.appendChild(s);
       });
-      return o;
-    });
-  }
+    }
 
-  async function main(){
-    try{
-      const data = await loadViaJSONP();
-      render(data);
-    }catch(err){
-      console.warn('JSONP failed, trying CSV…', err);
+    async function main(){
       try{
-        const res = await fetch(CSV);
-        const csv = await res.text();
-        const data = parseCSV(csv);
+        const data = await loadViaJSONP();
         render(data);
-      }catch(err2){
-        console.error('Both JSONP and CSV failed', err2);
-        alert('Failed to load data. If running from a local file, either use this JSONP version (already included), or host via a simple server (e.g., VS Code Live Server).');
-        return;
+      }catch(err){
+        console.warn('JSONP failed, trying CSV…', err);
+        try{
+          const res = await fetch(CSV + '&cb=' + Date.now()); // cache-buster
+          const csv = await res.text();
+          const data = parseCSV(csv);
+          render(data);
+        }catch(err2){
+          console.error('Both JSONP and CSV failed', err2);
+          alert('Failed to load data.');
+          return;
+        }
       }
+      document.querySelector('#lastUpdated').textContent = `Updated ${new Date().toLocaleString()}`;
     }
-    document.querySelector('#lastUpdated').textContent = `Updated ${new Date().toLocaleString()}`;
-  }
 
-  main();
-</script>
-
+    main();
+  </script>
 </body>
 </html>
