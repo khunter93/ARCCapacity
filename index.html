@@ -48,19 +48,57 @@
     h1{font-size:22px;margin:0;font-weight:600;color:var(--brand)}
     .muted{color:var(--muted)}
 
-    .theme-toggle{
+    .theme-toggle-wrapper{
+      display:flex;
+      align-items:center;
+      gap:8px;
       cursor:pointer;
-      border:1px solid var(--grid);
-      border-radius:12px;
-      padding:6px 12px;
-      background:var(--card);
-      color:var(--text);
-      transition:background .2s,border .2s,color .2s;
+      user-select:none;
     }
-    .theme-toggle:hover{
-      background:var(--brand);
-      color:#fff;
+    .theme-toggle-wrapper:hover .toggle-switch{
       border-color:var(--brand);
+    }
+    .theme-icon{
+      width:20px;
+      height:20px;
+      transition:transform 0.3s;
+    }
+    .theme-icon svg{
+      width:100%;
+      height:100%;
+      stroke:var(--text);
+      fill:none;
+    }
+    .theme-toggle-wrapper:hover .theme-icon{
+      transform:scale(1.1);
+    }
+    .toggle-switch{
+      position:relative;
+      width:44px;
+      height:24px;
+      background:var(--grid);
+      border:2px solid var(--grid);
+      border-radius:999px;
+      transition:all 0.3s;
+    }
+    .toggle-switch::before{
+      content:'';
+      position:absolute;
+      top:2px;
+      left:2px;
+      width:16px;
+      height:16px;
+      background:var(--text);
+      border-radius:50%;
+      transition:transform 0.3s;
+    }
+    [data-theme="dark"] .toggle-switch{
+      background:var(--brand);
+      border-color:var(--brand);
+    }
+    [data-theme="dark"] .toggle-switch::before{
+      transform:translateX(20px);
+      background:#fff;
     }
 
     .card{
@@ -94,20 +132,130 @@
     .tag.warn{background:rgba(245,158,11,.12);color:var(--warn)}
 
     .foot{margin-top:10px;color:var(--muted);font-size:12px}
-    @media (max-width:800px){.kpis{grid-template-columns:repeat(2,1fr)}}
+    
+    .refresh-btn{
+      cursor:pointer;
+      padding:8px;
+      border-radius:8px;
+      transition:background 0.2s;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border:none;
+      background:transparent;
+    }
+    .refresh-btn:hover{
+      background:var(--hover);
+    }
+    .refresh-btn svg{
+      width:18px;
+      height:18px;
+      stroke:var(--muted);
+      transition:transform 0.3s;
+    }
+    .refresh-btn:hover svg{
+      stroke:var(--text);
+    }
+    .refresh-btn.spinning svg{
+      animation:spin 0.6s linear;
+    }
+    @keyframes spin{
+      from{transform:rotate(0deg)}
+      to{transform:rotate(360deg)}
+    }
+
+    .card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+    }
+
+    /* Mobile card view */
+    .table-card{
+      display:none;
+    }
+    
+    @media (max-width:800px){
+      .kpis{grid-template-columns:repeat(2,1fr)}
+      
+      .controls{display:none}
+      .tablewrap{display:none}
+      .table-card{
+        display:block;
+      }
+      .week-card{
+        background:var(--input-bg);
+        border:1px solid var(--grid);
+        border-radius:12px;
+        padding:14px;
+        margin-bottom:12px;
+      }
+      .week-card-header{
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:12px;
+      }
+      .week-label{
+        font-weight:600;
+        display:flex;
+        align-items:center;
+        gap:8px;
+      }
+      .card-row{
+        display:flex;
+        justify-content:space-between;
+        padding:6px 0;
+        font-size:14px;
+      }
+      .card-row .label{
+        color:var(--muted);
+      }
+      .card-row .value{
+        font-weight:500;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header>
       <h1>ARC Call Capacity</h1>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="theme-toggle" id="themeToggle">🌞 Light</button>
-        <div class="muted" id="lastUpdated">—</div>
+      <div class="theme-toggle-wrapper" id="themeToggle">
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </span>
+        <div class="toggle-switch"></div>
+        <span class="theme-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </span>
       </div>
     </header>
 
     <div class="card">
+      <div class="card-header">
+        <div></div>
+        <button class="refresh-btn" id="refreshBtn" title="Refresh data">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+        </button>
+      </div>
       <div class="controls">
         <label>Week:
           <select id="weekFilter"></select>
@@ -146,7 +294,9 @@
         </table>
       </div>
 
-      <div class="foot">Tip: bars turn red when utilization &gt; 100%.</div>
+      <div class="table-card" id="mobileCards"></div>
+
+      <div class="foot" id="lastUpdated">—</div>
     </div>
   </div>
 
@@ -158,7 +308,6 @@
     function setTheme(theme){
       htmlEl.setAttribute('data-theme', theme);
       localStorage.setItem('arcTheme', theme);
-      themeToggle.textContent = theme === 'dark' ? 'Dark' : 'Light';
     }
 
     themeToggle.addEventListener('click',()=>{
@@ -166,11 +315,13 @@
       setTheme(current === 'dark' ? 'light' : 'dark');
     });
 
-    // Default light; load saved or system preference
+    // Load saved preference, otherwise default to light
     const saved = localStorage.getItem('arcTheme');
-    if(saved){ setTheme(saved); }
-    else if(window.matchMedia('(prefers-color-scheme: dark)').matches){ setTheme('dark'); }
-    else { setTheme('light'); }
+    if(saved){ 
+      setTheme(saved); 
+    } else { 
+      setTheme('light'); 
+    }
 
     /* ===== DASHBOARD ===== */
     // ======== CONFIGURE THESE VALUES ========
@@ -272,10 +423,10 @@
       }
       $('#weekFilter').innerHTML = '<option value="">All weeks</option>' + uniqWeeks.map(w=>`<option>${w}</option>`).join('');
 
-      // Status helpers
+      // Status helpers - changed Busy threshold to 85%
       function deriveStatus(u){
         if (u > 1) return 'Max Capacity';
-        if (u >= 0.9) return 'Busy';
+        if (u >= 0.85) return 'Busy';
         return 'Healthy';
       }
       function statusClass(label){
@@ -296,17 +447,25 @@
         const avgU = list.length ? list.reduce((s,r)=>s+(isFinite(r.Utilization)?r.Utilization:0),0)/list.length : 0;
         document.querySelector('#kUtil').textContent     = fmtPct(avgU);
 
-        // Table
+        // Table (desktop)
         const tbody = document.querySelector('#tbl tbody');
         tbody.innerHTML = '';
+        
+        // Mobile cards
+        const mobileCards = document.querySelector('#mobileCards');
+        mobileCards.innerHTML = '';
+        
         list.forEach(r=>{
           const remaining = r.Capacity - r.Workload;
           const weekLabel = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
           const statusLabel = r.Status || deriveStatus(r.Utilization);
+          const statusColor = r.Utilization>1?'var(--full)':(r.Utilization>=0.85?'var(--warn)':'var(--ok)');
+          
+          // Desktop table row
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>
-              <span style="height:10px;width:10px;border-radius:50%;display:inline-block;margin-right:8px;background:${r.Utilization>1?'var(--full)':(r.Utilization>=0.9?'var(--warn)':'var(--ok)')}"></span>
+              <span style="height:10px;width:10px;border-radius:50%;display:inline-block;margin-right:8px;background:${statusColor}"></span>
               ${weekLabel}
             </td>
             <td>${fmtNumber(r.Capacity)}</td>
@@ -315,12 +474,37 @@
             <td>
               <div class="bar">
                 <span style="width:${Math.min(100,(r.Utilization*100)||0)}%;
-                             background:${r.Utilization>1?'var(--full)':(r.Utilization>=0.9?'var(--warn)':'var(--ok)')}"></span>
+                             background:${statusColor}"></span>
               </div>
               <div class="muted" style="margin-top:4px">${fmtPct(r.Utilization)}</div>
             </td>
             <td>${tag(statusLabel)}</td>`;
           tbody.appendChild(tr);
+          
+          // Mobile card
+          const card = document.createElement('div');
+          card.className = 'week-card';
+          card.innerHTML = `
+            <div class="week-card-header">
+              <div class="week-label">
+                <span style="height:10px;width:10px;border-radius:50%;display:inline-block;background:${statusColor}"></span>
+                ${weekLabel}
+              </div>
+              ${tag(statusLabel)}
+            </div>
+            <div class="card-row">
+              <span class="label">Remaining</span>
+              <span class="value">${fmtNumber(remaining)}</span>
+            </div>
+            <div class="card-row">
+              <span class="label">Utilization</span>
+              <span class="value">${fmtPct(r.Utilization)}</span>
+            </div>
+            <div class="bar" style="margin-top:8px">
+              <span style="width:${Math.min(100,(r.Utilization*100)||0)}%;
+                           background:${statusColor}"></span>
+            </div>`;
+          mobileCards.appendChild(card);
         });
       }
 
@@ -334,7 +518,7 @@
           return label === w;
         });
         if (s) list = list.filter(r=> {
-          const label = r.Status || (r.Utilization>1?'Max Capacity':(r.Utilization>=0.9?'Busy':'Healthy'));
+          const label = r.Status || (r.Utilization>1?'Max Capacity':(r.Utilization>=0.85?'Busy':'Healthy'));
           return label.toLowerCase() === s.toLowerCase();
         });
         if (q) list = list.filter(r=> (r.Week || '').toLowerCase().includes(q));
@@ -361,6 +545,9 @@
     }
 
     async function main(){
+      const refreshBtn = document.getElementById('refreshBtn');
+      refreshBtn.classList.add('spinning');
+      
       try{
         const data = await loadViaJSONP();
         render(data);
@@ -374,11 +561,23 @@
         }catch(err2){
           console.error('Both JSONP and CSV failed', err2);
           alert('Failed to load data.');
+          refreshBtn.classList.remove('spinning');
           return;
         }
       }
-      document.querySelector('#lastUpdated').textContent = `Updated ${new Date().toLocaleString()}`;
+      document.querySelector('#lastUpdated').textContent = `Updated ${new Date().toLocaleString('en-US', { 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric', 
+        hour: 'numeric', 
+        minute: '2-digit', 
+        hour12: true 
+      })}`;
+      refreshBtn.classList.remove('spinning');
     }
+
+    // Refresh button handler
+    document.getElementById('refreshBtn').addEventListener('click', main);
 
     main();
   </script>
