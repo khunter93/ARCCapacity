@@ -13,10 +13,10 @@
       --text:#1e293b;
       --muted:#64748b;
       --brand:#0284c7;
-      --ok:#16a34a;
-      --warn:#f59e0b;
-      --full:#dc2626;
-      --grid:#e2e8f0;
+      --ok:#16A34A; /* Green */
+      --warn:#F59E0B; /* Yellow/Orange */
+      --full:#DC2626; /* Red - darker and more saturated */
+      --grid:#cbd5e1; /* Darker grey for better contrast with white text */
       --input-bg:#ffffff;
       --hover:rgba(2,132,199,.06);
     }
@@ -26,9 +26,9 @@
       --muted:#94a3b8;
       --text:#e5edf5;
       --brand:#38bdf8;
-      --ok:#22c55e;
-      --warn:#f59e0b;
-      --full:#ef4444;
+      --ok:#16A34A; /* Green */
+      --warn:#F59E0B; /* Yellow/Orange */
+      --full:#DC2626; /* Red - darker and more saturated */
       --grid:#1e293b;
       --input-bg:#0f172a;
       --hover:rgba(56,189,248,.06);
@@ -44,8 +44,7 @@
     }
 
     .wrap{max-width:1100px;margin:24px auto;padding:0 16px}
-    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px}
-    h1{font-size:22px;margin:0;font-weight:600;color:var(--brand)}
+    
     .muted{color:var(--muted)}
 
     .theme-toggle-wrapper{
@@ -112,6 +111,61 @@
 
     .controls{display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 16px}
     select,input{background:var(--input-bg);color:var(--text);border:1px solid var(--grid);padding:8px 10px;border-radius:10px;outline:none}
+    
+    /* Search input with icon */
+    .search-wrapper{
+      position:relative;
+      display:inline-block;
+      transition: width 0.3s ease;
+      min-width: 32px; /* Ensure icon is always visible */
+    }
+    .search-wrapper input{
+      padding-left:32px;
+      width: 0;
+      padding-right: 0;
+      border: none;
+      background: transparent;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .search-wrapper.expanded input {
+      width: 180px;
+      padding-right: 10px;
+      border: 1px solid var(--grid);
+      background: var(--input-bg);
+      cursor: text;
+    }
+    .search-icon{
+      position:absolute;
+      left:0;
+      top:50%;
+      transform:translateY(-50%);
+      width:32px;
+      height:32px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor: pointer;
+      z-index: 10;
+      transition: left 0.3s ease;
+      border-radius: 8px;
+    }
+    .search-wrapper:not(.expanded) .search-icon:hover {
+      background: var(--hover);
+    }
+    .search-wrapper.expanded .search-icon {
+      left: 2px;
+    }
+    .search-icon svg{
+      width:16px;
+      height:16px;
+      stroke:var(--muted);
+      fill:none;
+      transition: stroke 0.2s;
+    }
+    .search-icon:hover svg{
+      stroke:var(--text);
+    }
 
     table{width:100%;border-collapse:separate;border-spacing:0}
     th,td{padding:12px 10px;border-bottom:1px solid var(--grid);vertical-align:middle}
@@ -123,9 +177,107 @@
     .kpi .label{color:var(--muted);font-size:12px}
     .kpi .value{font-size:22px;font-weight:700}
 
-    .bar{position:relative;height:14px;background:var(--grid);border-radius:999px;overflow:hidden}
-    .bar > span{position:absolute;left:0;top:0;height:100%;display:block}
+/* --- SIMPLE ROUNDED BAR STYLE (ACTIVE) --- */
+    .bar-container {
+      position: relative;
+      height: 24px;
+      width: 100%;
+    }
+    
+    /* Percentage label aligned to the right side of the bar */
+    .bar-label {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+      z-index: 3;
+      pointer-events: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      backface-visibility: hidden;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
 
+    /* Simple background track */
+    .bar-track {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      z-index: 1;
+    }
+    
+    .bar-track-inner {
+      position: relative;
+      height: 100%;
+      width: 100%;
+      background: var(--grid);
+      border-radius: 999px;
+      overflow: visible;
+      box-sizing: border-box;
+    }
+
+    /* Simple colored fill with rounded ends */
+    .bar-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      border-radius: 999px; /* Fully rounded on both ends */
+      min-width: 15px;
+      max-width: 100%; /* Prevent overflow while allowing 100% */
+      overflow: hidden; /* Clip the stripes within rounded corners */
+    }
+    
+    /* Animated stripe overlay */
+    .bar-fill::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: calc(100% + 60px);
+      height: 100%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 14px,
+        rgba(255, 255, 255, 0.15) 14px,
+        rgba(255, 255, 255, 0.15) 28px
+      );
+      animation: barStripes 2s linear infinite;
+      pointer-events: none;
+    }
+    
+    @keyframes barStripes {
+      from { transform: translateX(0); }
+      to { transform: translateX(-40px); }
+    }
+    
+    /* Progress indicator line at the end of the bar - like a slider handle */
+    /* COMMENTED OUT - CAN RESTORE IF NEEDED
+    .bar-fill::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: calc(100% + 4px);
+      width: 4px;
+      background: inherit;
+      border-radius: 3px;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    */
+    
+    @keyframes stripes {
+      from { background-position: 40px 0; }
+      to { background-position: 0 0; }
+    }
+    /* --- END OF BAR CSS --- */
+    
     .tag{font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--grid)}
     .tag.ok{background:rgba(34,197,94,.12);color:var(--ok)}
     .tag.full{background:rgba(239,68,68,.12);color:var(--full)}
@@ -219,56 +371,30 @@
   </style>
 </head>
 <body>
+  
   <div class="wrap">
-    <header>
-      <h1>ARC Call Capacity</h1>
-      <div class="theme-toggle-wrapper" id="themeToggle">
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-          </svg>
-        </span>
-        <div class="toggle-switch"></div>
-        <span class="theme-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </span>
-      </div>
-    </header>
-
+    
     <div class="card">
       <div class="card-header">
-        <div></div>
-        <button class="refresh-btn" id="refreshBtn" title="Refresh data">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="23 4 23 10 17 10"></polyline>
-            <polyline points="1 20 1 14 7 14"></polyline>
-            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-          </svg>
-        </button>
-      </div>
-      <div class="controls">
-        <label>Week:
-          <select id="weekFilter"></select>
-        </label>
-        <label>Status:
-          <select id="statusFilter">
-            <option value="">All</option>
-            <option value="Healthy">Healthy</option>
-            <option value="Busy">Busy</option>
-            <option value="Max Capacity">Max Capacity</option>
-          </select>
-        </label>
-        <input id="search" placeholder="Search week (e.g., Nov 2 – 8)" />
+        <h1 style="font-size: 20px; margin: 0; font-weight: 600;">ARC Call Capacity</h1>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <div class="search-wrapper">
+            <span class="search-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+            </span>
+            <input id="search" placeholder="Search" />
+          </div>
+          <button class="refresh-btn" id="refreshBtn" title="Refresh data">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <polyline points="1 20 1 14 7 14"></polyline>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+        </div>
       </div>
 
       <div class="kpis">
@@ -296,7 +422,30 @@
 
       <div class="table-card" id="mobileCards"></div>
 
-      <div class="foot" id="lastUpdated">—</div>
+      <div class="foot" style="display: flex; justify-content: space-between; align-items: center;">
+        <span id="lastUpdated">—</span>
+        <div class="theme-toggle-wrapper" id="themeToggle">
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+          </span>
+          <div class="toggle-switch"></div>
+          <span class="theme-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -330,8 +479,53 @@
     const CSV        = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQs3XlDGAq7KpR7ltl7a4Ii_4ef_GMsfzDAVdEMuJqvdNbwAuJibG7r73whtAg2_1ZKcmtt5UUFVbzX/pub?gid=0&single=true&output=csv';
     // ========================================
 
-    // JSONP endpoint (bypasses CORS if opened as a local file)
+    /* ===== EXPANDABLE SEARCH ===== */
+    const searchWrapper = document.querySelector('.search-wrapper');
+    const searchIcon = document.querySelector('.search-icon');
+    const searchInput = document.querySelector('#search');
+
+    // Toggle search on icon click
+    searchIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (searchWrapper.classList.contains('expanded')) {
+        searchWrapper.classList.remove('expanded');
+        searchInput.value = '';
+        searchInput.dispatchEvent(new Event('input')); // Trigger filter update
+        searchInput.blur();
+      } else {
+        searchWrapper.classList.add('expanded');
+        setTimeout(() => searchInput.focus(), 300); // Focus after animation
+      }
+    });
+
+    // Expand on input click
+    searchInput.addEventListener('click', (e) => {
+      e.stopPropagation();
+      searchWrapper.classList.add('expanded');
+    });
+
+    // Collapse when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchWrapper.contains(e.target)) {
+        searchWrapper.classList.remove('expanded');
+        if (!searchInput.value) {
+          searchInput.blur();
+        }
+      }
+    });
+
+    // Keep expanded if there's text
+    searchInput.addEventListener('input', () => {
+      if (searchInput.value) {
+        searchWrapper.classList.add('expanded');
+      }
+    });
+
+    // JSONP endpoint for main data (bypasses CORS)
     const GVIZ_JSONP = (cb)=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=responseHandler:${cb}`;
+    
+    // JSONP endpoint for timestamp (bypasses CORS)
+    const GVIZ_TIMESTAMP = (cb)=>`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&range=M17&tqx=responseHandler:${cb}`;
 
     const $ = (sel)=>document.querySelector(sel);
 
@@ -339,7 +533,7 @@
     function fmtNumber(n){ return Number(n).toLocaleString(); }
     function fmtPct(x){ return (Number(x)*100).toFixed(0)+'%'; }
 
-    // Convert Google Sheets serial date -> JS Date, else try native
+    // Convert Google Sheets serial date → JS Date, else try native
     function gsSerialToDate(v){
       if (typeof v === 'number' && v > 30000) { // typical serials like 45559
         return new Date(Math.round((v - 25569) * 86400 * 1000));
@@ -421,12 +615,12 @@
         const label = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
         if (label && !seen.has(label)) { seen.add(label); uniqWeeks.push(label); }
       }
-      $('#weekFilter').innerHTML = '<option value="">All weeks</option>' + uniqWeeks.map(w=>`<option>${w}</option>`).join('');
+      // Week filter removed - search only now
 
       // Status helpers - changed Busy threshold to 85%
       function deriveStatus(u){
-        if (u > 1) return 'Max Capacity';
-        if (u >= 0.85) return 'Busy';
+        if (u >= 1) return 'Max Capacity'; // 100% or over
+        if (u >= 0.85) return 'Busy'; // 85% - 99.9%
         return 'Healthy';
       }
       function statusClass(label){
@@ -439,6 +633,9 @@
         return `<span class="tag ${statusClass(label)}">${label}</span>`;
       }
 
+      // -----------------------------------------------------------------
+      // THIS IS THE UPDATED FUNCTION
+      // -----------------------------------------------------------------
       function paint(list){
         // KPIs
         document.querySelector('#kWeeks').textContent    = list.length;
@@ -459,8 +656,31 @@
           const remaining = r.Capacity - r.Workload;
           const weekLabel = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
           const statusLabel = r.Status || deriveStatus(r.Utilization);
-          const statusColor = r.Utilization>1?'var(--full)':(r.Utilization>=0.85?'var(--warn)':'var(--ok)');
           
+          // Color logic: >= 1 is red, >= 0.85 is yellow
+          const statusColor = r.Utilization>=1?'var(--full)':(r.Utilization>=0.85?'var(--warn)':'var(--ok)');
+          
+          // Utilization percentage for width - no cap, let CSS handle constraints
+          const utilizationPct = Math.min(100, (r.Utilization * 100) || 0);
+          
+          
+          // **NEW LOGIC FOR 20% THRESHOLD**
+          
+          // 1. Create the label string. It's empty if < 20%.
+          const barLabelHTML = utilizationPct >= 20
+            ? `<div class="bar-label">${fmtPct(r.Utilization)}</div>`
+            : '';
+
+          // 2. Create the fill string. It's empty if 0%.
+          //    The label (if it exists) goes INSIDE the fill.
+          const barFillHTML = utilizationPct > 0
+            ? `<div class="bar-fill" style="width: ${utilizationPct}%; background-color: ${statusColor};">
+                 ${barLabelHTML}
+               </div>`
+            : '';
+          // **END NEW LOGIC**
+          
+
           // Desktop table row
           const tr = document.createElement('tr');
           tr.innerHTML = `
@@ -471,12 +691,14 @@
             <td>${fmtNumber(r.Capacity)}</td>
             <td>${fmtNumber(r.Workload)}</td>
             <td>${fmtNumber(remaining)}</td>
+            
             <td>
-              <div class="bar">
-                <span style="width:${Math.min(100,(r.Utilization*100)||0)}%;
-                             background:${statusColor}"></span>
+              <div class="bar-container">
+                <div class="bar-track">
+                  <div class="bar-track-inner">
+                    ${barFillHTML} </div>
+                </div>
               </div>
-              <div class="muted" style="margin-top:4px">${fmtPct(r.Utilization)}</div>
             </td>
             <td>${tag(statusLabel)}</td>`;
           tbody.appendChild(tr);
@@ -496,37 +718,28 @@
               <span class="label">Remaining</span>
               <span class="value">${fmtNumber(remaining)}</span>
             </div>
-            <div class="card-row">
-              <span class="label">Utilization</span>
-              <span class="value">${fmtPct(r.Utilization)}</span>
+            
+            <div class="bar-container" style="margin-top: 8px;">
+              <div class="bar-track">
+                <div class="bar-track-inner">
+                  ${barFillHTML} </div>
+              </div>
             </div>
-            <div class="bar" style="margin-top:8px">
-              <span style="width:${Math.min(100,(r.Utilization*100)||0)}%;
-                           background:${statusColor}"></span>
-            </div>`;
+            `;
           mobileCards.appendChild(card);
         });
       }
+      // -----------------------------------------------------------------
+      // END OF UPDATED FUNCTION
+      // -----------------------------------------------------------------
 
       function applyFilters(){
-        const w = document.querySelector('#weekFilter').value;
-        const s = document.querySelector('#statusFilter').value;
         const q = document.querySelector('#search').value.trim().toLowerCase();
         let list = rows.slice();
-        if (w) list = list.filter(r=> {
-          const label = r.Week || `${toISO(r.Start)}${r.End?` – ${toISO(r.End).slice(5)}`:''}`;
-          return label === w;
-        });
-        if (s) list = list.filter(r=> {
-          const label = r.Status || (r.Utilization>1?'Max Capacity':(r.Utilization>=0.85?'Busy':'Healthy'));
-          return label.toLowerCase() === s.toLowerCase();
-        });
         if (q) list = list.filter(r=> (r.Week || '').toLowerCase().includes(q));
         paint(list);
       }
 
-      document.querySelector('#weekFilter').onchange = applyFilters;
-      document.querySelector('#statusFilter').onchange = applyFilters;
       document.querySelector('#search').oninput = applyFilters;
 
       paint(rows);
@@ -544,17 +757,132 @@
       });
     }
 
+    // Function to load JUST the timestamp via JSONP
+    function loadTimestampViaJSONP(){
+      return new Promise((resolve,reject)=>{
+        const cb = 'gviz_ts_' + Math.random().toString(36).slice(2); // Different callback name
+        const s = document.createElement('script');
+        window[cb] = (resp)=>{ 
+          try{
+            const data = fromGvizObj(resp);
+            if (data.length > 0) {
+              const firstRow = data[0];
+              const firstKey = Object.keys(firstRow)[0]; 
+              resolve(firstRow[firstKey]); // This will be the timestamp string
+            } else {
+              resolve(null); // No data found
+            }
+          } catch(e){ 
+            reject(e); 
+          } finally { 
+            delete window[cb]; s.remove(); 
+          } 
+        };
+        s.src = GVIZ_TIMESTAMP(cb); // Use the new timestamp JSONP URL
+        s.onerror = ()=>{ delete window[cb]; reject(new Error('Timestamp JSONP load error')); };
+        document.body.appendChild(s);
+      });
+    }
+
+    // Get relative time from timestamp
+    function getRelativeTime(timestamp) {
+      // Returns a relative time string, or NULL if parsing fails
+      if (!timestamp) return null;
+
+      try {
+        const parts = timestamp.split(' ');
+        
+        // We need at least 2 parts: "11/10/2025" and "9:50:17"
+        if (parts.length < 2) {
+          console.warn('Invalid timestamp format (expected date and time):', timestamp);
+          return null; // Fail gracefully
+        }
+        
+        const dateParts = parts[0].split('/'); // ["11", "10", "2025"] (Month, Day, Year)
+        const timeParts = parts[1].split(':'); // ["9", "50", "17"]
+
+        let hours = parseInt(timeParts[0]);
+        let minutes = 0;
+        let seconds = 0;
+
+        if (timeParts.length > 1) {
+          minutes = parseInt(timeParts[1]);
+        }
+        if (timeParts.length > 2) {
+          seconds = parseInt(timeParts[2]);
+        }
+        
+        // Handle AM/PM format (if it exists as a 3rd part)
+        if (parts.length === 3) {
+          const ampm = parts[2].toUpperCase();
+          if (ampm === 'PM' && hours !== 12) {
+            hours += 12;
+          }
+          if (ampm === 'AM' && hours === 12) { // 12:XX AM is 00:XX
+            hours = 0;
+          }
+        }
+        
+        // Build an ISO-like string that new Date() parses as LOCAL (PST for you)
+        // Format: YYYY-MM-DDTHH:MM:SS
+        const isoLocalString = `${dateParts[2]}-${String(dateParts[0]).padStart(2, '0')}-${String(dateParts[1]).padStart(2, '0')}T${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        const then = new Date(isoLocalString);
+
+        if (isNaN(then)) {
+          console.warn('Could not parse timestamp:', timestamp, isoLocalString);
+          return null;
+        }
+
+        const now = new Date();
+        const diffMs = now - then;
+        const diffSeconds = Math.floor(diffMs / 1000);
+        
+        // Prevent future timestamps from showing negative
+        if (diffSeconds < 0) {
+          return 'Just now';
+        }
+        
+        const diffMinutes = Math.floor(diffSeconds / 60);
+        const diffHours = Math.floor(diffMinutes / 60);
+        const diffDays = Math.floor(diffHours / 24);
+        
+        if (diffSeconds < 10) return 'Just now';
+        if (diffSeconds < 60) return `${diffSeconds} seconds ago`;
+        if (diffMinutes === 1) return '1 minute ago';
+        if (diffMinutes < 60) return `${diffMinutes} minutes ago`;
+        if (diffHours === 1) return '1 hour ago';
+        if (diffHours < 24) return `${diffHours} hours ago`;
+        if (diffDays === 1) return '1 day ago';
+        return `${diffDays} days ago`;
+
+      } catch (e) {
+        console.error('Error parsing time:', e, timestamp);
+        return null; // Fail gracefully on any error
+      }
+    }
+
     async function main(){
       const refreshBtn = document.getElementById('refreshBtn');
       refreshBtn.classList.add('spinning');
       
+      let lastUpdateTimestamp = null;
+      
+      // Fetch M17 timestamp using the new JSONP function
+      try {
+        lastUpdateTimestamp = await loadTimestampViaJSONP(); // This will be the clean timestamp string
+      } catch(tsErr) {
+        console.warn('Could not fetch M17 timestamp:', tsErr);
+      }
+      
+      // Fetch the main data
       try{
         const data = await loadViaJSONP();
         render(data);
       }catch(err){
         console.warn('JSONP failed, trying CSV…', err);
         try{
-          const res = await fetch(CSV + '&cb=' + Date.now()); // cache-buster
+          const res = await fetch(CSV + '&cb=' + Date.now());
           const csv = await res.text();
           const data = parseCSV(csv);
           render(data);
@@ -565,19 +893,40 @@
           return;
         }
       }
-      document.querySelector('#lastUpdated').textContent = `Updated ${new Date().toLocaleString('en-US', { 
-        month: 'long', 
-        day: 'numeric', 
-        year: 'numeric', 
-        hour: 'numeric', 
-        minute: '2-digit', 
-        hour12: true 
-      })}`;
+      
+      // Update the footer with relative time, OR a fallback
+      
+      let relativeTime = null;
+      if (lastUpdateTimestamp) {
+        // Try to parse the timestamp
+        relativeTime = getRelativeTime(lastUpdateTimestamp);
+      }
+      
+      if (relativeTime) {
+        // SUCCESS: Show "Last Update: 5 minutes ago"
+        document.querySelector('#lastUpdated').textContent = `Last Update: ${relativeTime}`;
+      } else {
+        // FAIL: Show the original fallback "Last Update: November 10..."
+        document.querySelector('#lastUpdated').textContent = `Last Update: ${new Date().toLocaleString('en-US', { 
+          month: 'long', 
+          day: 'numeric', 
+          year: 'numeric', 
+          hour: 'numeric', 
+          minute: '2-digit', 
+          hour12: true 
+        })}`;
+      }
+      
       refreshBtn.classList.remove('spinning');
     }
 
     // Refresh button handler
     document.getElementById('refreshBtn').addEventListener('click', main);
+
+    // Auto-refresh every 30 seconds to update the relative time
+    setInterval(() => {
+      main();
+    }, 30000);
 
     main();
   </script>
